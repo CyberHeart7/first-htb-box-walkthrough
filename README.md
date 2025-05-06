@@ -5,20 +5,22 @@ This is a detailed walkthrough of how I hacked my first Hack The Box machine. It
 
 ---
 
-## 🔍 Step 1: Discovering the Target
+## 🔍 **Step 1: Discovering the Target**
 
 I started by identifying machines on the local network using `netdiscover`.
 ![image](https://github.com/user-attachments/assets/1b7d3b51-ba12-4c02-af78-6d77f25febc7)
 
 
-bash
+
 netdiscover -r 192.xxx.xx.x/24
 
 This showed me the IP address of the machine I wanted to target. Once I had that, I moved on to port scanning.
 
-⚡ Step 2: Port Scanning with Nmap
+## ⚡ Step 2: Port Scanning with Nmap
+
 Next, I ran a full TCP port scan using Nmap to find all open ports and grab service/version info.
-![image](https://github.com/user-attachments/assets/fbd66e99-eb3b-450a-8d47-e53893026566)
+
+![Nmap Scan](https://github.com/user-attachments/assets/fbd66e99-eb3b-450a-8d47-e53893026566)
 
 
 
@@ -31,7 +33,7 @@ nmap -T4 -p- -A 192.168.1.193
 
 The scan revealed open ports including HTTP and SMB services.
 
-🌐 Step 3: Web Enumeration
+🌐 **Step 3: Web Enumeration**
 Since port 80 was open, I navigated to the web server and began enumerating.
 
 Nikto Web Scanner
