@@ -1,7 +1,8 @@
 # TCM Security - First Machine Hack Walkthrough
 
 ## 🧠 Summary
-This is a detailed walkthrough of how I hacked my first Hack The Box machine. It includes every major step I took from initial discovery to gaining access, along with notes on tools used and what I learned along the way.
+
+This walkthrough documents my approach to compromising a beginner-level Capture The Flag (CTF) machine from TCM Security. The goal was to simulate a real-world penetration test by enumerating services, identifying vulnerabilities, and exploiting them to gain access. This exercise helped reinforce my understanding of tools like Nmap, Nikto, SMB enumeration, and Metasploit. All steps are presented in order, with supporting screenshots, to guide others through the same learning process.
 
 ---
 
