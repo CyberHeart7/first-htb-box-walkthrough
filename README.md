@@ -1,4 +1,4 @@
-# Hack The Box - First Machine Walkthrough
+# TCM Security - First Machine Hack Walkthrough
 
 ## 🧠 Summary
 This is a detailed walkthrough of how I hacked my first Hack The Box machine. It includes every major step I took from initial discovery to gaining access, along with notes on tools used and what I learned along the way.
