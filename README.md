@@ -1,78 +1,92 @@
-# first-htb-box-walkthrough
-My first Hack The Box machine — a full walkthrough of how I compromised it.
 # Hack The Box - First Machine Walkthrough
 
 ## 🧠 Summary
-This is my personal walkthrough of my first Hack The Box machine. I document how I discovered, enumerated, and exploited the box using real-world pentesting techniques and tools.
+This is a detailed walkthrough of how I hacked my first Hack The Box machine. It includes every major step I took from initial discovery to gaining access, along with notes on tools used and what I learned along the way.
 
 ---
 
-## 🔍 Initial Recon - Network Discovery
+## 🔍 Step 1: Discovering the Target
+
+I started by identifying machines on the local network using `netdiscover`.
+![image](https://github.com/user-attachments/assets/1b7d3b51-ba12-4c02-af78-6d77f25febc7)
+
 
 ```bash
 netdiscover -r 192.xxx.xx.x/24
--r stands for range.
 
-Detects live hosts in the subnet.
+This showed me the IP address of the machine I wanted to target. Once I had that, I moved on to port scanning.
 
-Use Ctrl+C to stop the scan and Ctrl+L to clear the terminal.
+⚡ Step 2: Port Scanning with Nmap
+Next, I ran a full TCP port scan using Nmap to find all open ports and grab service/version info.
 
-⚡ Port Scanning with Nmap
 bash
 Copy
 Edit
 nmap -T4 -p- -A 192.168.1.193
--T4 = faster execution.
+-T4: faster timing
 
--p- = scan all 65535 ports.
+-p-: scans all 65535 ports
 
--A = aggressive scan (OS, version detection, scripts, and traceroute).
+-A: aggressive mode (includes OS detection, version info, script scan, traceroute)
 
-UDP Note:
-For UDP scans, avoid -A (too slow). Use:
+The scan revealed open ports including HTTP and SMB services.
 
-bash
-Copy
-Edit
-nmap -sU -T4 -p- 192.xxx.xx.x
-🌐 Web Enumeration
-Nikto
+🌐 Step 3: Web Enumeration
+Since port 80 was open, I navigated to the web server and began enumerating.
+
+Nikto Web Scanner
+I used Nikto to scan for common web vulnerabilities:
+
 bash
 Copy
 Edit
 nikto -h http://192.168.1.193
-Identifies potential vulnerabilities like remote buffer overflow or code execution.
+This flagged possible remote buffer overflows and code execution vulnerabilities.
 
-DirBuster
-Scans for hidden directories and file extensions.
+DirBuster Directory Discovery
+I then ran DirBuster to brute-force hidden directories and file extensions:
 
-You can add .pdf, .zip, .rar, etc., for deeper scans.
+bash
+Copy
+Edit
+dirbuster &
+I added extensions like .pdf, .zip, and .rar to catch more files. While DirBuster ran, I manually reviewed the page source and found a 404 page that disclosed the Apache version — a small but useful info leak.
 
-Tip: Always check source code and comments in HTML for clues.
+🔧 Step 4: SMB Enumeration
+Back to the Nmap scan — I noticed SMB was running and decided to investigate further.
 
-🔒 SMB Enumeration
-SMB = file sharing used in internal environments (like printers or network drives).
+Using Metasploit to Identify SMB Version
+I launched Metasploit and searched for SMB-related modules:
 
-From Nmap -A, we find the SMB version (e.g., Samba 2.2.1a).
+bash
+Copy
+Edit
+search smb
+Then I used the SMB version scanner module:
 
-Using Metasploit
-Use search smb to find available modules.
+bash
+Copy
+Edit
+use auxiliary/scanner/smb/smb_version
+set RHOSTS 192.168.1.193
+run
+This revealed that the target was running Samba 2.2.1a, which is vulnerable.
 
-Modules are typically under auxiliary/scanner/smb/.
+Connecting with SMBClient
+I attempted to connect to the file share using:
 
-RHOST = remote host (target)
-LHOST = your host (attacker machine)
-
-SMBClient
 bash
 Copy
 Edit
 smbclient //192.168.1.193/IPC$ -N
-Attempts anonymous connection.
+Anonymous login worked for IPC$, though I couldn’t access admin$.
 
-Could not access admin$, but IPC$ gave us command access.
+📚 Step 5: Finding Exploits
+With the Samba version identified, I searched Exploit-DB and found a known vulnerability that matched. I also found a Metasploit module on Rapid7’s site that could be used to exploit Samba 2.2.1a.
 
-🛠 Tools Used
+I read through the exploit details and prepped the payload in Metasploit for potential use.
+
+🛠 Tools I Used
 netdiscover
 
 nmap
@@ -87,11 +101,19 @@ metasploit
 
 smbclient
 
-🔚 Conclusion
-Learned enumeration through ports, HTTP, SMB.
+🎯 Conclusion
+This machine helped me understand:
 
-Discovered Samba version.
+How to enumerate live hosts and open services
 
-Identified potential exploits.
+When and how to use aggressive Nmap scanning
 
-Practiced scanning, analyzing, and documenting responsibly.
+Web-based reconnaissance using Nikto and DirBuster
+
+SMB service enumeration and exploitation research
+
+It was a great introduction to real-world penetration testing, and it showed me how powerful a combination of tools and research can be.
+
+yaml
+Copy
+Edit
