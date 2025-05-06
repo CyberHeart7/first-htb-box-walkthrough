@@ -11,17 +11,17 @@ I started by identifying machines on the local network using `netdiscover`.
 ![image](https://github.com/user-attachments/assets/1b7d3b51-ba12-4c02-af78-6d77f25febc7)
 
 
-```bash
+bash
 netdiscover -r 192.xxx.xx.x/24
 
 This showed me the IP address of the machine I wanted to target. Once I had that, I moved on to port scanning.
 
 ⚡ Step 2: Port Scanning with Nmap
 Next, I ran a full TCP port scan using Nmap to find all open ports and grab service/version info.
+![image](https://github.com/user-attachments/assets/fbd66e99-eb3b-450a-8d47-e53893026566)
 
-bash
-Copy
-Edit
+
+
 nmap -T4 -p- -A 192.168.1.193
 -T4: faster timing
 
@@ -36,19 +36,16 @@ Since port 80 was open, I navigated to the web server and began enumerating.
 
 Nikto Web Scanner
 I used Nikto to scan for common web vulnerabilities:
+![image](https://github.com/user-attachments/assets/496b5212-c643-4d16-ac28-fcc34256ba8f)
 
-bash
-Copy
-Edit
-nikto -h http://192.168.1.193
+
+nikto -h http://192.168.x.xxx
 This flagged possible remote buffer overflows and code execution vulnerabilities.
 
 DirBuster Directory Discovery
 I then ran DirBuster to brute-force hidden directories and file extensions:
 
-bash
-Copy
-Edit
+
 dirbuster &
 I added extensions like .pdf, .zip, and .rar to catch more files. While DirBuster ran, I manually reviewed the page source and found a 404 page that disclosed the Apache version — a small but useful info leak.
 
